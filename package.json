@@ -1,0 +1,38 @@
+
+{
+  "name": "react-native-markdown-formatter",
+  "version": "1.0.10",
+  "description": "This is a react-native library to apply desired regex to plain text.",
+  "main": "MarkdownFormatter/src/index.js",
+  "files":[
+    "MarkdownFormatter/src/index.js"
+  ],  
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack --watch",
+    "build": "webpack"
+  },
+  "keywords": [
+    "react-native",
+    "RNAdaptiveCards",
+    "markdown-formatter",
+    "text-formatter",
+    "react-native-library"
+  ],
+  "author": "Ashok Regar",
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/Imaginea/react-native-markdown-formatter",
+    "type": "git"
+  },
+  "peerDependencies": {
+    "react-native": "^0.41.2",
+    "react": "^16.4.0"
+  },
+  "devDependencies": {
+    "react": "^16.4.0"
+  },
+  "dependencies": {
+    "react-scripts": "1.1.4"
+  }
+}
