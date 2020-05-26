@@ -1,12 +1,11 @@
-
 {
   "name": "react-native-markdown-formatter",
-  "version": "1.0.10",
+  "version": "1.0.13",
   "description": "This is a react-native library to apply desired regex to plain text.",
   "main": "MarkdownFormatter/src/index.js",
-  "files":[
+  "files": [
     "MarkdownFormatter/src/index.js"
-  ],  
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack --watch",

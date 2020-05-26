@@ -83,6 +83,31 @@ To replace or to be added with default config.
     . Item -2.2-
     . Item 3
     ```
+
+*       {
+			type: 'customHeader1',
+			styles: [styles.header1],
+			pattern: ['**'],
+			patternType: 'symmetric',
+			groups: 1,
+		},
+		{
+			type: 'customHeader2',
+			styles: [styles.header2],
+			pattern: ['##'],
+			patternType: 'symmetric',
+			groups: 1,
+		},
+
+    The above pattern will convert "This is a \n\*\*header1\*\* \nand \n\#\#header2\#\# \ntext" in following way: 
+    ```    
+    This is a 
+    header1 (header1 style)
+    and 
+    header2 (header2 style)
+    text
+    ```
+    Note: check the demo for better understanding.
     
 *   One can create custom markdown based on project need and render it within text.
 
@@ -102,6 +127,7 @@ let exampleTexts = [
 	"This is a custom markdown for bullet list $ Item **1**.1\r$ Item _2.2_\r$ Item 3\r ",
 	"This is a mixed **_bold/italic_** which also supports **_Type_One** _Type**Two**_ text",
 	"This is a mixed lists \n**bullet** list - Item **1**.1\r- Item _2.2_\r- Item 3\r and _numbered_ list 1. _Green_\r2. Orange\r3. **Blue**\r",
+	"This is a #header1# and ##header2## text",
 ];
 
 ```
@@ -137,7 +163,21 @@ var customMarkdownFormatterRegex = [
 		pattern: ['-'],
 		patternType: 'symmetric',
 		groups:1,
-	}
+	},
+	{
+		type: 'customHeader1',
+		styles: [styles.header1],
+		pattern: ['#'],
+		patternType: 'symmetric',
+		groups: 1,
+	},
+	{
+		type: 'customHeader2',
+		styles: [styles.header2],
+		pattern: ['##'],
+		patternType: 'symmetric',
+		groups: 1,
+	},
 ];
 
 //[Optional] TextBlock styles
