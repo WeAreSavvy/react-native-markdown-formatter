@@ -51,7 +51,7 @@ export default class MarkdownFormatter extends React.Component {
       styles: [styles.hyperlinkText],
       pattern: ["[]()"],
       patternType: "asymmetric",
-      groups: 2,
+      groups: 1,
     },
     {
       type: "customHeader1",
@@ -129,26 +129,8 @@ export default class MarkdownFormatter extends React.Component {
           "(.*?)" +
           pattern[0].replace(SPECIAL_CHAR_REGEX, "\\$&");
       } else if (patternType == "asymmetric") {
-        pattern = pattern[0].replace(SPECIAL_CHAR_REGEX, "\\$&");
-        let regexForm = "";
-        p = this.regexArray[i].pattern[0];
-        for (var j = 0; j < p.length; j++) {
-          regexForm = regexForm + "\\" + p[j];
-        }
-        // create all group regex
-        let part = regexForm.length / groups;
-        let regex = "";
-        for (var j = 0; j < groups; j++) {
-          let group = regexForm.substring(part * j, part * (j + 1));
-          let firstHalf = group.substring(0, group.length / 2);
-          let secondHalf = group.substring(group.length / 2, group.length);
-          let middle =
-            j < groups / 2
-              ? group.substring(0, group.length / 2)
-              : group.substring(group.length / 2, group.length);
-          regex = regex + firstHalf + "([^" + middle + "]+)" + secondHalf;
-        }
-        pattern = regex;
+        pattern =
+          "(https?://(?:www.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9].[^s]{2,}|www.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9].[^s]{2,}|https?://(?:www.|(?!www))[a-zA-Z0-9]+.[^s]{2,}|www.[a-zA-Z0-9]+.[^s]{2,})";
       }
       // let modifyRegex = new RegExp('(\\\\n|\\\\r)', 'gi')
       // pattern = pattern.replace(modifyRegex, '\\$&');
@@ -285,7 +267,7 @@ export default class MarkdownFormatter extends React.Component {
                 elementJsxArray.push(dividedElements[0]);
                 elementStylesArray.push(lastElementStyles);
                 if (lastElementStyles.indexOf("hyperlinkText") !== -1) {
-                  elementLinksArray.push(this.matchesFound[lastIdx][2]);
+                  elementLinksArray.push(this.matchesFound[lastIdx][0]);
                 } else {
                   elementLinksArray.push(null);
                 }
@@ -300,7 +282,7 @@ export default class MarkdownFormatter extends React.Component {
                 elementJsxArray.push(dividedElements[1]);
                 elementStylesArray.push(lastElementStyles);
                 if (lastElementStyles.indexOf("hyperlinkText") !== -1) {
-                  elementLinksArray.push(this.matchesFound[lastIdx][2]);
+                  elementLinksArray.push(this.matchesFound[lastIdx][0]);
                 } else {
                   elementLinksArray.push(null);
                 }
@@ -333,7 +315,7 @@ export default class MarkdownFormatter extends React.Component {
             [this.matchesStyleTypes[idx]].concat(this.matchesStyles[idx])
           );
           if (this.matchesStyleTypes[idx] === "hyperlinkText") {
-            elementLinksArray.push(this.matchesFound[idx][2]);
+            elementLinksArray.push(this.matchesFound[idx][0]);
           } else {
             elementLinksArray.push(null);
           }
@@ -517,7 +499,6 @@ const styles = StyleSheet.create({
   },
   hyperlinkText: {
     color: "blue",
-    textDecorationLine: "underline",
   },
 
   boldText: {
