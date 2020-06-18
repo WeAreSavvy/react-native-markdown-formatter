@@ -142,6 +142,7 @@ export default class MarkdownFormatter extends React.Component {
   }
 
   render() {
+    let text;
     text = this.text;
     for (var i = 0; i <= this.styleTypes.length - 1; i++) {
       this.parseText(
@@ -157,6 +158,7 @@ export default class MarkdownFormatter extends React.Component {
 
   parseText = (text, type, styles, pattern) => {
     // var text = text.replace(NEWLINE_CHAR_REGEX, '\\n');
+    let parsed;
     while ((parsed = pattern.exec(text)) !== null) {
       if (parsed[1] === undefined) {
         continue;
