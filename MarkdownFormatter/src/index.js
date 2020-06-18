@@ -368,6 +368,7 @@ export default class MarkdownFormatter extends React.Component {
         tempJSX.push(
           <Text
             key={"list_item_" + index}
+            numberOfLines={this.numberOfLines}
             style={this.state.userStyles.concat(elementStylesArray[index])}
           >
             {eachWord}
@@ -377,6 +378,7 @@ export default class MarkdownFormatter extends React.Component {
         tempJSX.push(
           <Text
             key={key}
+            numberOfLines={this.numberOfLines}
             style={elementStylesArray[index]}
             onPress={() => this.addOnPress(elementLinksArray[index])}
           >
@@ -397,6 +399,7 @@ export default class MarkdownFormatter extends React.Component {
             <Text
               key={key + WrapJsx.length + "wrap_list"}
               style={this.state.userStyles}
+              numberOfLines={this.numberOfLines}
             >
               {WrapJsx}
             </Text>
@@ -408,7 +411,12 @@ export default class MarkdownFormatter extends React.Component {
         if (partialJsx.length !== 0) {
           fullJsx.push(
             <View key={key + "_list"} style={this.state.userStyles}>
-              <Text key={key + partialJsx.length + "_list"}>{partialJsx}</Text>
+              <Text
+                key={key + partialJsx.length + "_list"}
+                numberOfLines={this.numberOfLines}
+              >
+                {partialJsx}
+              </Text>
             </View>
           );
           partialJsx = [];
