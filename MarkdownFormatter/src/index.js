@@ -1,37 +1,19 @@
 /**
  * React Native Markdown Formatter.
  */
-
 import React from "react";
 import { StyleSheet, Text, Linking, View } from "react-native";
 import PropTypes from "prop-types";
-
 let SPECIAL_CHAR_REGEX = new RegExp("[^|a-z\\\\s\\d]", "gi");
 let NEWLINE_CHAR_REGEX = new RegExp("([\\n|\\r])", "gi");
-
 export default class MarkdownFormatter extends React.Component {
   static displayName = "MarkdownFormatter";
   matchedIndices = [];
   matchesFound = [];
   matchesStyleTypes = [];
   matchesStyles = [];
-
   // formatter pattern configs
   MD_FORMATTER_CONFIG = [
-    {
-      type: "numbered",
-      styles: [],
-      pattern: ["\\d.", "\\r|\\n"],
-      patternType: "start-end",
-      groups: 1,
-    },
-    {
-      type: "bullet",
-      styles: [],
-      pattern: ["-", "\\r|\\n"],
-      patternType: "start-end",
-      groups: 1,
-    },
     {
       type: "bold",
       styles: [styles.boldText],
@@ -48,8 +30,8 @@ export default class MarkdownFormatter extends React.Component {
     },
     {
       type: "hyperlink",
-      styles: [styles.hyperlinkText],
-      pattern: ["[]()"],
+      styles: [],
+      pattern: [],
       patternType: "asymmetric",
       groups: 1,
     },
@@ -68,16 +50,13 @@ export default class MarkdownFormatter extends React.Component {
       groups: 1,
     },
   ];
-
   componentWillReceiveProps(nextProps) {
     this.setState({
       userStyles: nextProps.defaultStyles,
     });
   }
-
   constructor(props) {
     super(props);
-
     // props
     this.text = props.text;
     this.state = {
@@ -85,7 +64,6 @@ export default class MarkdownFormatter extends React.Component {
     };
     this.numberOfLines = props.numberOfLines || 0;
     this.regexArray = props.regexArray || [];
-
     // prefer user configs
     for (var i = 0; i < this.MD_FORMATTER_CONFIG.length; i++) {
       for (var j = 0; j < this.regexArray.length; j++) {
@@ -99,18 +77,15 @@ export default class MarkdownFormatter extends React.Component {
       }
     }
     this.regexArray = this.MD_FORMATTER_CONFIG.concat(this.regexArray);
-
     // extracted regex
     this.patterns = [];
     this.styles = [];
     this.patternTypes = [];
     this.styleTypes = [];
-
     for (var i = 0; i < this.regexArray.length; i++) {
       let pattern = this.regexArray[i].pattern;
       let patternType = this.regexArray[i].patternType;
       let groups = this.regexArray[i].groups;
-
       if (patternType === "custom") {
         pattern = pattern[0];
       }
@@ -130,21 +105,24 @@ export default class MarkdownFormatter extends React.Component {
           pattern[0].replace(SPECIAL_CHAR_REGEX, "\\$&");
       } else if (patternType == "asymmetric") {
         pattern =
-          "(https?://(?:www.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9].[^s]{2,}|www.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9].[^s]{2,}|https?://(?:www.|(?!www))[a-zA-Z0-9]+.[^s]{2,}|www.[a-zA-Z0-9]+.[^s]{2,})";
+          "((http|https|ftp|ftps|bit)://[a-zA-Z0-9-.-/]+.|(bit.ly/[a-zA-Z0-9-.]*)|(www.[a-zA-Z0-9-.-/]*))";
       }
-      // let modifyRegex = new RegExp('(\\\\n|\\\\r)', 'gi')
-      // pattern = pattern.replace(modifyRegex, '\\$&');
+
       this.patterns[i] = new RegExp(pattern, "gim");
-      this.styles[i] = this.regexArray[i].styles;
+      if (patternType == "asymmetric") {
+        this.styles[i] = { color: this.props.linkColor };
+      } else {
+        this.styles[i] = this.regexArray[i].styles;
+      }
       this.styleTypes[i] = this.regexArray[i].type;
       this.patternTypes[i] = patternType;
     }
   }
-
   render() {
     let text;
     text = this.text;
     for (var i = 0; i <= this.styleTypes.length - 1; i++) {
+      console.log("text", text);
       this.parseText(
         text,
         this.styleTypes[i],
@@ -152,12 +130,9 @@ export default class MarkdownFormatter extends React.Component {
         this.patterns[i]
       );
     }
-
     return this.renderText(this.text);
   }
-
   parseText = (text, type, styles, pattern) => {
-    // var text = text.replace(NEWLINE_CHAR_REGEX, '\\n');
     let parsed;
     while ((parsed = pattern.exec(text)) !== null) {
       if (parsed[1] === undefined) {
@@ -175,7 +150,6 @@ export default class MarkdownFormatter extends React.Component {
       text = text.replace(parsed[0], parsed[1] + spacesStr);
       this.matchesStyleTypes.push(type + "Text");
       this.matchesStyles.push(styles);
-
       if (type === "bullet") {
         parsed[1] = "\u2022 \t" + parsed[1];
       }
@@ -183,10 +157,8 @@ export default class MarkdownFormatter extends React.Component {
       // parsed[1] = parsed[1].replace(a, '');
       this.matchesFound.push(parsed);
     }
-
     return text;
   };
-
   renderText = (text) => {
     let jsxArray = [];
     let elementJsxArray = [];
@@ -194,12 +166,10 @@ export default class MarkdownFormatter extends React.Component {
     let elementLinksArray = [];
     let remainingText = text;
     let processedText = "";
-
     //arrange matches to process left to right
     let sortedMatchedIndices = [...this.matchedIndices].sort(function (a, b) {
       return a - b;
     });
-
     if (this.matchesFound.length < 1) {
       jsxArray.push(
         <Text
@@ -228,9 +198,7 @@ export default class MarkdownFormatter extends React.Component {
               continue;
             }
           }
-
           idx = this.matchedIndices.indexOf(sortedMatchedIndices[i]);
-
           //check if previous elementJsxArray is or has the current match
           let lastIdx = this.matchedIndices.indexOf(
             sortedMatchedIndices[i - 1]
@@ -274,12 +242,10 @@ export default class MarkdownFormatter extends React.Component {
                   elementLinksArray.push(null);
                 }
               }
-
               elementJsxArray.push(this.matchesFound[idx][1]);
               let elementStyle = [this.matchesStyleTypes[idx]];
               elementStyle = elementStyle.concat(this.matchesStyles[idx]);
               elementStylesArray.push(elementStyle.concat(lastElementStyles));
-
               if (dividedElements.length > 1) {
                 elementJsxArray.push(dividedElements[1]);
                 elementStylesArray.push(lastElementStyles);
@@ -289,11 +255,9 @@ export default class MarkdownFormatter extends React.Component {
                   elementLinksArray.push(null);
                 }
               }
-
               continue;
             }
           }
-
           // string before match
           let uptoIdx = this.matchesFound[idx].index - processedText.length;
           if (uptoIdx < 0) {
@@ -306,7 +270,6 @@ export default class MarkdownFormatter extends React.Component {
             elementStylesArray.push([null]);
             elementLinksArray.push(null);
           }
-
           // matched string
           if (this.matchesStyleTypes[idx] === "numberedText") {
             elementJsxArray.push(this.matchesFound[idx][0]);
@@ -321,7 +284,6 @@ export default class MarkdownFormatter extends React.Component {
           } else {
             elementLinksArray.push(null);
           }
-
           let fromIdx =
             this.matchesFound[idx].index +
             this.matchesFound[idx][0].length -
@@ -334,19 +296,16 @@ export default class MarkdownFormatter extends React.Component {
             processedText + beforeMatchStr + this.matchesFound[idx][0];
         }
       }
-
       //final string
       elementJsxArray.push(remainingText);
       elementStylesArray.push([null]);
       elementLinksArray.push(null);
-
       jsxArray.push(
         this.createJsx(elementJsxArray, elementStylesArray, elementLinksArray)
       );
     }
     return jsxArray;
   };
-
   createJsx = function (
     elementJsxArray,
     elementStylesArray,
@@ -359,7 +318,6 @@ export default class MarkdownFormatter extends React.Component {
     var fullJsx = [];
     elementJsxArray.map((eachWord, index) => {
       let key = "text_" + index;
-
       if (
         elementStylesArray[index].indexOf("bulletText") !== -1 ||
         elementStylesArray[index].indexOf("numberedText") !== -1
@@ -370,7 +328,6 @@ export default class MarkdownFormatter extends React.Component {
         tempJSX.push(
           <Text
             key={"list_item_" + index}
-            numberOfLines={this.numberOfLines}
             style={this.state.userStyles.concat(elementStylesArray[index])}
           >
             {eachWord}
@@ -380,7 +337,6 @@ export default class MarkdownFormatter extends React.Component {
         tempJSX.push(
           <Text
             key={key}
-            numberOfLines={this.numberOfLines}
             style={elementStylesArray[index]}
             onPress={() => this.addOnPress(elementLinksArray[index])}
           >
@@ -389,7 +345,6 @@ export default class MarkdownFormatter extends React.Component {
         );
       }
     });
-
     elementJsxArray.map((eachWord, index) => {
       let key = "text__" + index;
       if (
@@ -401,7 +356,6 @@ export default class MarkdownFormatter extends React.Component {
             <Text
               key={key + WrapJsx.length + "wrap_list"}
               style={this.state.userStyles}
-              numberOfLines={this.numberOfLines}
             >
               {WrapJsx}
             </Text>
@@ -413,12 +367,7 @@ export default class MarkdownFormatter extends React.Component {
         if (partialJsx.length !== 0) {
           fullJsx.push(
             <View key={key + "_list"} style={this.state.userStyles}>
-              <Text
-                key={key + partialJsx.length + "_list"}
-                numberOfLines={this.numberOfLines}
-              >
-                {partialJsx}
-              </Text>
+              <Text key={key + partialJsx.length + "_list"}>{partialJsx}</Text>
             </View>
           );
           partialJsx = [];
@@ -426,7 +375,6 @@ export default class MarkdownFormatter extends React.Component {
         if (eachWord.trim() != "") WrapJsx.push(tempJSX[index]);
       }
     });
-
     if (fullJsx.length === 0) {
       fullJsx = (
         <Text
@@ -450,7 +398,6 @@ export default class MarkdownFormatter extends React.Component {
     }
     return fullJsx;
   };
-
   addOnPress = (url) => {
     if (url === null) {
       return null;
@@ -458,7 +405,6 @@ export default class MarkdownFormatter extends React.Component {
       this.props.onPressLink(url);
     }
   };
-
   splitValue(str, index, separator) {
     if (str.indexOf(separator) !== -1) {
       return [str.substring(0, index), str.substring(index + separator.length)];
@@ -466,7 +412,6 @@ export default class MarkdownFormatter extends React.Component {
       return [str];
     }
   }
-
   /**
    * @description Finds the nth Index for Fact key and column value
    */
@@ -481,11 +426,9 @@ export default class MarkdownFormatter extends React.Component {
     return index;
   }
 }
-
 MarkdownFormatter.propTypes = {
   text: PropTypes.string.isRequired,
 };
-
 const styles = StyleSheet.create({
   displayText: {
     flexDirection: "column",
@@ -495,7 +438,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
   },
-
   bulletText: {
     margin: 0,
   },
@@ -507,14 +449,9 @@ const styles = StyleSheet.create({
   textBlock: {
     left: 10,
   },
-  hyperlinkText: {
-    color: "blue",
-  },
-
   boldText: {
     fontWeight: "bold",
   },
-
   italicText: {
     fontStyle: "italic",
   },
