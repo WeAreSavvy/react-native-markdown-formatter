@@ -122,7 +122,6 @@ export default class MarkdownFormatter extends React.Component {
     let text;
     text = this.text;
     for (var i = 0; i <= this.styleTypes.length - 1; i++) {
-      console.log("text", text);
       this.parseText(
         text,
         this.styleTypes[i],
